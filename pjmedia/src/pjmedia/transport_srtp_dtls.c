@@ -938,6 +938,13 @@ static pj_status_t dtls_on_recv_rtp( pjmedia_transport *tp,
 #endif
 
     /* This is DTLS packet, let's process it */
+	
+	pjmedia_transport_info_init(&info);
+    pjmedia_transport_get_info(ds->srtp->member_tp, &info);
+    ice_info = (pjmedia_ice_transport_info*)
+                   pjmedia_transport_info_get_spc_info(
+                                    &info, PJMEDIA_TRANSPORT_TYPE_ICE);
+    ds->use_ice = ice_info;
 
     /* Check remote address info, reattach member tp if changed */
     if (!ds->use_ice) {
