@@ -1447,6 +1447,7 @@ PJ_DEF(pj_status_t) pj_ice_strans_sendto( pj_ice_strans *ice_st,
     pj_ice_strans_comp *comp;
     pj_ice_sess_cand *def_cand;
     pj_status_t status;
+	printf("ICE STRANS SENDTO PACKET!!!\n");
 
     PJ_ASSERT_RETURN(ice_st && comp_id && comp_id <= ice_st->comp_cnt &&
 		     dst_addr && dst_addr_len, PJ_EINVAL);

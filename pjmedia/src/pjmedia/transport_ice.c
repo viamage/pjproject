@@ -1764,6 +1764,7 @@ static pj_status_t transport_send_rtp(pjmedia_transport *tp,
 				      pj_size_t size)
 {
     struct transport_ice *tp_ice = (struct transport_ice*)tp;
+	printf("ICE SEND PACKET\n");
 
     /* Simulate packet lost on TX direction */
     if (tp_ice->tx_drop_pct) {
