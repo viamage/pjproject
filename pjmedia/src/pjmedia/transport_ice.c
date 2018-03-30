@@ -1042,12 +1042,12 @@ static pj_status_t verify_ice_sdp(struct transport_ice *tp_ice,
 	    continue;
 	}
 
-	if (!comp1_found && cand.comp_id==COMP_RTP &&
-	    pj_sockaddr_cmp(&rem_conn_addr, &cand.addr)==0) 
+	if (!comp1_found && cand.comp_id==COMP_RTP/* &&
+	    pj_sockaddr_cmp(&rem_conn_addr, &cand.addr)==0*/) 
 	{
 	    comp1_found = PJ_TRUE;
-	} else if (!comp2_found && cand.comp_id==COMP_RTCP &&
-		    pj_sockaddr_cmp(&rtcp_addr, &cand.addr)==0) 
+	} else if (!comp2_found && cand.comp_id==COMP_RTCP /*&&
+		    pj_sockaddr_cmp(&rtcp_addr, &cand.addr)==0*/) 
 	{
 	    comp2_found = PJ_TRUE;
 	}
@@ -1058,6 +1058,8 @@ static pj_status_t verify_ice_sdp(struct transport_ice *tp_ice,
 	if (comp1_found && (comp2_found || tp_ice->comp_cnt==1))
 	    break;
     }
+
+    //printf("ICE MIS? TP->COMP_CNT=%d COMP1=%d COMP2=%d HAS_RTCP=%d\n", tp_ice->comp_cnt, comp1_found, comp2_found, has_rtcp);
 
     /* Check matched component count and ice_mismatch */
     if (comp1_found && (tp_ice->comp_cnt==1 || !has_rtcp)) {
@@ -1764,7 +1766,6 @@ static pj_status_t transport_send_rtp(pjmedia_transport *tp,
 				      pj_size_t size)
 {
     struct transport_ice *tp_ice = (struct transport_ice*)tp;
-	printf("ICE SEND PACKET\n");
 
     /* Simulate packet lost on TX direction */
     if (tp_ice->tx_drop_pct) {

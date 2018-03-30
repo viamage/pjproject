@@ -1429,6 +1429,7 @@ static pj_status_t transport_encode_sdp(pjmedia_transport *tp,
 					const pjmedia_sdp_session *sdp_remote,
 					unsigned media_index)
 {
+	
     struct transport_srtp *srtp = (struct transport_srtp*) tp;
     pj_status_t last_err_st = PJ_EBUG;
     pj_status_t status;
@@ -1445,7 +1446,7 @@ static pj_status_t transport_encode_sdp(pjmedia_transport *tp,
 					  sdp_local, sdp_remote, media_index);
     if (status != PJ_SUCCESS || srtp->bypass_srtp)
 	return status;
-
+	
     /* Invoke encode_sdp() of all keying methods */
     for (i=0; i < srtp->keying_cnt; ) {
 	pj_status_t st;

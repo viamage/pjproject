@@ -1554,15 +1554,25 @@ PJ_DEF(pj_status_t) pjmedia_sdp_transport_cmp( const pj_str_t *t1,
 {
     static const pj_str_t ID_RTP_AVP  = { "RTP/AVP", 7 };
     static const pj_str_t ID_RTP_SAVP = { "RTP/SAVP", 8 };
+    static const pj_str_t ID_RTP_SAVPF = { "RTP/SAVPF", 9 };
+    
+    static const pj_str_t ID_UT_RTP_SAVP = { "UDP/TLS/RTP/SAVP", 16 };
+    static const pj_str_t ID_UT_RTP_SAVPF = { "UDP/TLS/RTP/SAVPF", 17 };
 
     /* Exactly equal? */
     if (pj_stricmp(t1, t2) == 0)
 	return PJ_SUCCESS;
 
     /* Compatible? */
-    if ((!pj_stricmp(t1, &ID_RTP_AVP) || !pj_stricmp(t1, &ID_RTP_SAVP)) &&
-        (!pj_stricmp(t2, &ID_RTP_AVP) || !pj_stricmp(t2, &ID_RTP_SAVP)))
+    if ((!pj_stricmp(t1, &ID_RTP_AVP) || !pj_stricmp(t1, &ID_RTP_SAVP) || !pj_stricmp(t1, &ID_RTP_SAVPF)) &&
+        (!pj_stricmp(t2, &ID_RTP_AVP) || !pj_stricmp(t2, &ID_RTP_SAVP) || !pj_stricmp(t2, &ID_RTP_SAVPF)))
 	return PJ_SUCCESS;
+	
+    if ((!pj_stricmp(t1, &ID_UT_RTP_SAVP) || !pj_stricmp(t1, &ID_UT_RTP_SAVPF)) &&
+        (!pj_stricmp(t2, &ID_UT_RTP_SAVP) || !pj_stricmp(t2, &ID_UT_RTP_SAVPF)))
+	return PJ_SUCCESS;
+
+    PJ_LOG(4, (THIS_FILE, "TRANSPORTS DOES NOT MATCH %s %d %s %d", t1->ptr, t1->slen , t2->ptr, t2->slen ));
 
     return PJMEDIA_SDP_ETPORTNOTEQUAL;
 }

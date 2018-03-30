@@ -39,7 +39,7 @@
 #endif
 
 /* Set to 1 to enable DTLS-SRTP debugging */
-#define DTLS_DEBUG  0
+#define DTLS_DEBUG 1
 
 /* DTLS-SRTP transport op */
 static pj_status_t dtls_media_create  (pjmedia_transport *tp,
@@ -128,6 +128,7 @@ typedef struct dtls_srtp
 
 
 static const pj_str_t ID_TP_DTLS_SRTP = { "UDP/TLS/RTP/SAVP", 16 };
+static const pj_str_t ID_TP_DTLS_SRTP_2 = { "UDP/TLS/RTP/SAVPF", 17 };
 static const pj_str_t ID_SETUP	      = { "setup", 5 };
 static const pj_str_t ID_ACTPASS      = { "actpass", 7 };
 static const pj_str_t ID_ACTIVE       = { "active", 6 };
@@ -550,9 +551,9 @@ static pj_status_t ssl_match_fingerprint(dtls_srtp *ds)
     pj_status_t status;
 
     /* Check hash algo, currently we only support SHA-256 & SHA-1 */
-    if (!pj_strncmp2(&ds->rem_fingerprint, "SHA-256 ", 8))
+    if (!pj_strnicmp2(&ds->rem_fingerprint, "SHA-256 ", 8))
 	is_sha256 = PJ_TRUE;
-    else if (!pj_strncmp2(&ds->rem_fingerprint, "SHA-1 ", 6))
+    else if (!pj_strnicmp2(&ds->rem_fingerprint, "SHA-1 ", 6))
 	is_sha256 = PJ_FALSE;
     else {
 	PJ_LOG(4,(ds->base.name, "Hash algo specified in remote SDP for "
@@ -929,7 +930,7 @@ static pj_status_t dtls_on_recv_rtp( pjmedia_transport *tp,
 				     pj_size_t size)
 {
     dtls_srtp *ds = (dtls_srtp*)tp;
-
+	
     if (size < 1 || !IS_DTLS_PKT(pkt, size))
 	return PJ_EIGNORED;
 
@@ -942,7 +943,7 @@ static pj_status_t dtls_on_recv_rtp( pjmedia_transport *tp,
     pjmedia_transport_info info;
     pjmedia_ice_transport_info *ice_info;
 	
-	pjmedia_transport_info_init(&info);
+    pjmedia_transport_info_init(&info);
     pjmedia_transport_get_info(ds->srtp->member_tp, &info);
     ice_info = (pjmedia_ice_transport_info*)
                    pjmedia_transport_info_get_spc_info(
@@ -1016,7 +1017,7 @@ static pj_status_t dtls_media_create( pjmedia_transport *tp,
 	 */
 	pjmedia_sdp_media *m_rem = sdp_remote->media[media_index];
 
-	if (pj_stricmp(&m_rem->desc.transport, &ID_TP_DTLS_SRTP)!=0) {
+	if (pj_stricmp(&m_rem->desc.transport, &ID_TP_DTLS_SRTP)!=0 && pj_stricmp(&m_rem->desc.transport, &ID_TP_DTLS_SRTP_2)!=0) {
 	    /* Remote doesn't signal DTLS-SRTP */
 	    status = PJMEDIA_SRTP_ESDPINTRANSPORT;
 	    goto on_return;

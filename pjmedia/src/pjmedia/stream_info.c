@@ -29,6 +29,9 @@ static const pj_str_t ID_IP4 = { "IP4", 3};
 static const pj_str_t ID_IP6 = { "IP6", 3};
 static const pj_str_t ID_RTP_AVP = { "RTP/AVP", 7 };
 static const pj_str_t ID_RTP_SAVP = { "RTP/SAVP", 8 };
+static const pj_str_t ID_RTP_SAVPF = { "RTP/SAVPF", 9 };
+static const pj_str_t ID_UT_RTP_SAVP = { "UDP/TLS/RTP/SAVP", 16 };
+static const pj_str_t ID_UT_RTP_SAVPF = { "UDP/TLS/RTP/SAVPF", 17 };
 //static const pj_str_t ID_SDP_NAME = { "pjmedia", 7 };
 static const pj_str_t ID_RTPMAP = { "rtpmap", 6 };
 static const pj_str_t ID_TELEPHONE_EVENT = { "telephone-event", 15 };
@@ -377,6 +380,8 @@ PJ_DEF(pj_status_t) pjmedia_stream_info_from_sdp(
     /* Keep SDP shortcuts */
     local_m = local->media[stream_idx];
     rem_m = remote->media[stream_idx];
+    
+      printf("STAR! %d %d\n", local_conn, rem_conn);
 
     local_conn = local_m->conn ? local_m->conn : local->conn;
     if (local_conn == NULL)
@@ -386,10 +391,13 @@ PJ_DEF(pj_status_t) pjmedia_stream_info_from_sdp(
     if (rem_conn == NULL)
 	return PJMEDIA_SDP_EMISSINGCONN;
 
+
+    printf("QConn!\n");
+
     /* Media type must be audio */
     if (pj_stricmp(&local_m->desc.media, &ID_AUDIO) != 0)
 	return PJMEDIA_EINVALIMEDIATYPE;
-
+	
     /* Get codec manager. */
     mgr = pjmedia_endpt_get_codec_mgr(endpt);
 
@@ -401,6 +409,8 @@ PJ_DEF(pj_status_t) pjmedia_stream_info_from_sdp(
     /* Set default RTCP XR enabled/disabled */
     si->rtcp_xr_enabled = PJ_TRUE;
 #endif
+
+    printf("QUATRO!\n");
 
     /* Media type: */
     si->type = PJMEDIA_TYPE_AUDIO;
@@ -423,12 +433,25 @@ PJ_DEF(pj_status_t) pjmedia_stream_info_from_sdp(
 
 	si->proto = PJMEDIA_TP_PROTO_RTP_SAVP;
 
+    } else if (pj_stristr(&local_m->desc.transport, &ID_RTP_SAVPF)) {
+
+	si->proto = PJMEDIA_TP_PROTO_RTP_SAVP;
+
+    } else if (pj_stristr(&local_m->desc.transport, &ID_UT_RTP_SAVP)) {
+
+	si->proto = PJMEDIA_TP_PROTO_RTP_SAVP;
+
+    } else if (pj_stristr(&local_m->desc.transport, &ID_UT_RTP_SAVPF)) {
+
+	si->proto = PJMEDIA_TP_PROTO_RTP_SAVP;
+
     } else {
 
 	si->proto = PJMEDIA_TP_PROTO_UNKNOWN;
 	return PJ_SUCCESS;
     }
 
+    printf("HALF\n");
 
     /* Check address family in remote SDP */
     rem_af = pj_AF_UNSPEC();
@@ -489,6 +512,13 @@ PJ_DEF(pj_status_t) pjmedia_stream_info_from_sdp(
     }
 
     /* Media direction: */
+
+    printf("MEDIA DIR?\n  port = %d\n  sock has not local_addr = %d\n  sock has not rem_addr = %d\n  "\
+	  "INACTIVE = %d\n",
+	   local_m->desc.port,
+	   pj_sockaddr_has_addr(&local_addr)==PJ_FALSE,
+	   pj_sockaddr_has_addr(&si->rem_addr)==PJ_FALSE,
+	   pjmedia_sdp_media_find_attr(local_m, &STR_INACTIVE, NULL)!=NULL);
 
     if (local_m->desc.port == 0 ||
 	pj_sockaddr_has_addr(&local_addr)==PJ_FALSE ||

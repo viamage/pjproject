@@ -31,7 +31,7 @@
 #include <pj/string.h>
 #include <pj/compat/socket.h>
 
-#define ENABLE_TRACE 0
+#define ENABLE_TRACE 1
 
 #if defined(ENABLE_TRACE) && (ENABLE_TRACE != 0)
 #  define TRACE_PKT(expr)	    PJ_LOG(5,expr)
@@ -1447,7 +1447,6 @@ PJ_DEF(pj_status_t) pj_ice_strans_sendto( pj_ice_strans *ice_st,
     pj_ice_strans_comp *comp;
     pj_ice_sess_cand *def_cand;
     pj_status_t status;
-	printf("ICE STRANS SENDTO PACKET!!!\n");
 
     PJ_ASSERT_RETURN(ice_st && comp_id && comp_id <= ice_st->comp_cnt &&
 		     dst_addr && dst_addr_len, PJ_EINVAL);
@@ -1486,7 +1485,6 @@ PJ_DEF(pj_status_t) pj_ice_strans_sendto( pj_ice_strans *ice_st,
 	unsigned tp_idx = GET_TP_IDX(def_cand->transport_id);
 
 	if (def_cand->type == PJ_ICE_CAND_TYPE_RELAYED) {
-
 	    enum {
 		msg_disable_ind = 0xFFFF &
 				  ~(PJ_STUN_SESS_LOG_TX_IND|
@@ -1675,7 +1673,7 @@ static pj_status_t ice_tx_pkt(pj_ice_sess *ice,
     TRACE_PKT((comp->ice_st->obj_name,
 	       "Component %d TX packet to %s:%d with transport %d",
 	       comp_id,
-	       pj_sockaddr_print(dst_addr, daddr, sizeof(addr), 0),
+	       pj_sockaddr_print(dst_addr, daddr, sizeof(daddr), 0),
 	       pj_sockaddr_get_port(dst_addr),
 	       tp_typ));
 

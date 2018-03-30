@@ -1432,10 +1432,10 @@ static pj_bool_t on_check_complete(pj_ice_sess *ice,
     /* See if all components have nominated pair. If they do, then mark
      * ICE processing as success, otherwise wait.
      */
-    for (i=0; i<ice->comp_cnt; ++i) {
+    for (i=0; i<ice->comp_cnt; ++i) {	
 	if (ice->comp[i].nominated_check == NULL)
 	    break;
-    }
+	}
     if (i == ice->comp_cnt) {
 	/* All components have nominated pair */
 	on_ice_complete(ice, PJ_SUCCESS);
