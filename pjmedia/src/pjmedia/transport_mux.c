@@ -286,10 +286,15 @@ static void mux_rtp_cb( void *user_data, void *pkt, pj_ssize_t size)
     
     unsigned char* data = (unsigned char*) pkt;
     int type = (size >= 2) ? ((data[1]) & 0x7F) : 0;
+    
+   /* if(size >= 2) {
+	printf("RTCP-demux d[1] = 0x%02x = %3d   type = 0x%02x = %3d  RTCP = %d\n", data[1], data[1], type, type, type >= 64 && type < 96);
+    }*/
+    
     if(type >= 64 && type < 96) {
-	mux->rtp_cb(mux->user_data, pkt, size);
-    } else {
 	mux->rtcp_cb(mux->user_data, pkt, size);
+    } else {
+	mux->rtp_cb(mux->user_data, pkt, size);
     }
     return;
 }

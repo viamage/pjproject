@@ -31,7 +31,7 @@
 #include <pj/string.h>
 #include <pj/compat/socket.h>
 
-#define ENABLE_TRACE 1
+#define ENABLE_TRACE 0
 
 #if defined(ENABLE_TRACE) && (ENABLE_TRACE != 0)
 #  define TRACE_PKT(expr)	    PJ_LOG(5,expr)
