@@ -1704,7 +1704,7 @@ static void on_rx_rtp( void *data,
 	pkt_discarded = PJ_TRUE;
 	goto on_return;
     }
-
+    
     /* Ignore if payloadlen is zero */
     if (payloadlen == 0) {
 	pkt_discarded = PJ_TRUE;
@@ -1900,7 +1900,7 @@ static void on_rx_rtcp( void *data,
                         pj_ssize_t bytes_read)
 {
     pjmedia_stream *stream = (pjmedia_stream*) data;
-
+    
     /* Check for errors */
     if (bytes_read < 0) {
 	if (bytes_read != -PJ_STATUS_FROM_OS(OSERR_EWOULDBLOCK)) {
