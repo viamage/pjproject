@@ -168,7 +168,7 @@ class SymbolImporter:
 		for name in names:
 			node = visitor.nodeDict[name]
 			if not node:
-				print "  ** Warning: declaration for '%s' is not found **" % k
+				print "  warning: declaration for '%s' is not found **" % k
 			else:
 				print "  writing '%s'.." % name
 				output = gen.visit(node) + ";\n\n"

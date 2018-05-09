@@ -356,15 +356,15 @@ static char* ossl_profiles[] =
 {
      "SRTP_AES128_CM_SHA1_80",
      "SRTP_AES128_CM_SHA1_32",
-     "SRTP_AEAD_AES_256_GCM"
-     "SRTP_AEAD_AES_128_GCM",
+     "SRTP_AEAD_AES_256_GCM",
+     "SRTP_AEAD_AES_128_GCM"
 };
 static char* pj_profiles[] =
 {
     "AES_CM_128_HMAC_SHA1_80",
     "AES_CM_128_HMAC_SHA1_32",
-    "AEAD_AES_256_GCM"
-    "AEAD_AES_128_GCM",
+    "AEAD_AES_256_GCM",
+    "AEAD_AES_128_GCM"
 };
 
 
@@ -405,6 +405,7 @@ static pj_status_t ssl_create(dtls_srtp *ds)
 
 	}
 	rc = SSL_CTX_set_tlsext_use_srtp(ctx, buf+1);
+	PJ_LOG(4,(ds->base.name, "Setting crypto [%s], errcode=%d", buf, rc));
 	pj_assert(rc == 0);
     }
 
@@ -472,7 +473,7 @@ static void ssl_destroy(dtls_srtp *ds)
 
 static pj_status_t ssl_get_srtp_material(dtls_srtp *ds)
 {
-    unsigned char material[SRTP_MAX_KEY_LEN];
+    unsigned char material[SRTP_MAX_KEY_LEN * 2];
     SRTP_PROTECTION_PROFILE *profile;
     int rc, i, crypto_idx = -1;
     pjmedia_srtp_crypto *tx, *rx;
@@ -554,9 +555,9 @@ static pj_status_t ssl_match_fingerprint(dtls_srtp *ds)
     pj_status_t status;
 
     /* Check hash algo, currently we only support SHA-256 & SHA-1 */
-    if (!pj_strncmp2(&ds->rem_fingerprint, "SHA-256 ", 8))
+    if (!pj_strnicmp2(&ds->rem_fingerprint, "SHA-256 ", 8))
 	is_sha256 = PJ_TRUE;
-    else if (!pj_strncmp2(&ds->rem_fingerprint, "SHA-1 ", 6))
+    else if (!pj_strnicmp2(&ds->rem_fingerprint, "SHA-1 ", 6))
 	is_sha256 = PJ_FALSE;
     else {
 	PJ_LOG(4,(ds->base.name, "Hash algo specified in remote SDP for "
@@ -590,6 +591,30 @@ static pj_status_t send_raw(dtls_srtp *ds, const void *buf, pj_size_t len)
 #endif
 
     return pjmedia_transport_send_rtp(ds->srtp->member_tp, buf, len);
+}
+
+
+/* Start socket if member transport is UDP */
+static pj_status_t udp_member_transport_media_start(dtls_srtp *ds)
+{
+    pjmedia_transport_info info;
+    pj_status_t status;
+
+    if (!ds->srtp->member_tp)
+	return PJ_SUCCESS;
+
+    pjmedia_transport_info_init(&info);
+    status = pjmedia_transport_get_info(ds->srtp->member_tp, &info);
+    if (status != PJ_SUCCESS)
+	return status;
+
+    if (info.specific_info_cnt == 1 &&
+	info.spc_info[0].type == PJMEDIA_TRANSPORT_TYPE_UDP)
+    {
+	return pjmedia_transport_media_start(ds->srtp->member_tp, 0, 0, 0, 0);
+    }
+
+    return PJ_SUCCESS;
 }
 
 
@@ -1181,6 +1206,11 @@ static pj_status_t dtls_encode_sdp( pjmedia_transport *tp,
 	status = pjmedia_transport_attach2(&ds->srtp->base, &ap);
 	if (status != PJ_SUCCESS)
 	    goto on_return;
+
+	/* Start member transport if it is UDP, so we can receive packet
+	 * (see also #2097).
+	 */
+	udp_member_transport_media_start(ds);
     }
 
     /* If our setup is ACTIVE and member transport is not ICE,

@@ -45,8 +45,8 @@ export _CFLAGS 	:= $(CC_CFLAGS) $(OS_CFLAGS) $(HOST_CFLAGS) $(M_CFLAGS) \
 		   $(CC_INC)../../pjmedia/include \
 		   $(CC_INC)../../pjnath/include \
 		   $(CC_INC)../..
-export _CXXFLAGS:= $(_CFLAGS) $(CC_CXXFLAGS) $(OS_CXXFLAGS) $(M_CXXFLAGS) \
-		   $(HOST_CXXFLAGS) $(CXXFLAGS)
+export _CXXFLAGS:= $(CC_CXXFLAGS) $(OS_CXXFLAGS) $(M_CXXFLAGS) \
+		   $(HOST_CXXFLAGS) $(CXXFLAGS) $(_CFLAGS) 
 
 export _LDFLAGS := $(APP_THIRD_PARTY_LIBS) \
 		   $(APP_THIRD_PARTY_EXT) \
@@ -166,8 +166,9 @@ export PJMEDIA_TEST_LDFLAGS += $(PJMEDIA_CODEC_LDLIB) \
 			       $(PJLIB_UTIL_LDLIB) \
 			       $(PJLIB_LDLIB) \
 			       $(_LDFLAGS)
+ifeq ($(EXCLUDE_APP),0)
 export PJMEDIA_TEST_EXE:=pjmedia-test-$(TARGET_NAME)$(HOST_EXE)
-
+endif
 	
 export CC_OUT CC AR RANLIB HOST_MV HOST_RM HOST_RMDIR HOST_MKDIR OBJEXT LD LDOUT 
 ###############################################################################

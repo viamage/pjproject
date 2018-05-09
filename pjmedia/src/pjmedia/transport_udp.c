@@ -155,9 +155,11 @@ static pj_status_t transport_simulate_lost(pjmedia_transport *tp,
 				       unsigned pct_lost);
 static pj_status_t transport_destroy  (pjmedia_transport *tp);
 
+#if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
+	    PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT!=0
 static pj_status_t transport_restart  (pj_bool_t is_rtp, 
 				       struct transport_udp *udp);
-
+#endif
 
 static pjmedia_transport_op transport_udp_op = 
 {
@@ -669,6 +671,15 @@ static pj_status_t transport_get_info(pjmedia_transport *tp,
     info->src_rtp_name  = udp->rtp_src_addr;
     info->src_rtcp_name = udp->rtcp_src_addr;
 
+    /* Add empty specific info */
+    if (info->specific_info_cnt < PJ_ARRAY_SIZE(info->spc_info)) {
+	pjmedia_transport_specific_info *tsi;
+
+	tsi = &info->spc_info[info->specific_info_cnt++];
+	tsi->type = PJMEDIA_TRANSPORT_TYPE_UDP;
+	tsi->cbsize = 0;
+    }
+
     return PJ_SUCCESS;
 }
 
@@ -1103,6 +1114,8 @@ static pj_status_t transport_simulate_lost(pjmedia_transport *tp,
     return PJ_SUCCESS;
 }
 
+#if defined(PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT) && \
+	    PJ_IPHONE_OS_HAS_MULTITASKING_SUPPORT!=0
 static pj_status_t transport_restart(pj_bool_t is_rtp,
 				     struct transport_udp *udp)
 {
@@ -1225,3 +1238,4 @@ on_error:
     }
     return status;
 }
+#endif
